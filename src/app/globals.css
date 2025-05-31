@@ -23,4 +23,32 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden; /* Still good to keep for general robustness */
+}
+
+/* Page transition animations - FADE */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-transition-out {
+  animation: fadeOut 0.3s forwards ease-in-out;
+}
+
+.page-transition-in {
+  animation: fadeIn 0.3s forwards ease-in-out;
 }
