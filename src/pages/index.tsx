@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 const images = [
   'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', // Rice terraces, Philippines
@@ -37,10 +39,11 @@ const HomePage = () => {
       <div className="w-full max-w-4xl mt-12 mb-16 rounded-2xl overflow-hidden shadow-2xl bg-[var(--secondary)] transform hover:scale-[1.02] transition-transform duration-500">
         <div className="relative h-72 sm:h-96 md:h-[500px]">
           {images.map((img, idx) => (
-            <img
+            <Image
               key={img}
               src={img}
               alt={`Southeast Asia ${idx + 1}`}
+              fill
               className={`absolute top-0 left-0 w-full h-full object-cover transition-all duration-1000 ${idx === current ? 'opacity-100 z-10 scale-100' : 'opacity-0 z-0 scale-105'}`}
             />
           ))}
@@ -79,10 +82,10 @@ const HomePage = () => {
             <div className="text-center">
               <h4 className="text-xl font-semibold text-[var(--primary)] mb-6" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Quick Links</h4>
               <ul className="space-y-3">
-                <li><a href="/vision" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Our Vision</a></li>
-                <li><a href="/meet-the-team" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Meet The Team</a></li>
-                <li><a href="/affiliates" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Affiliates</a></li>
-                <li><a href="/contact-us" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Contact Us</a></li>
+                <li><Link href="/vision" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Our Vision</Link></li>
+                <li><Link href="/meet-the-team" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Meet The Team</Link></li>
+                <li><Link href="/affiliates" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Affiliates</Link></li>
+                <li><Link href="/contact-us" className="text-[var(--primary)]/70 hover:text-[var(--primary)] transition-colors text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>Contact Us</Link></li>
               </ul>
             </div>
             
