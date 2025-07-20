@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #002147; /* Oxford Blue */
+  --secondary: #ffffff; /* White */
+  --tertiary: #000000; /* Black */
 }
 
 @theme inline {
@@ -22,7 +25,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Montserrat', Arial, Helvetica, sans-serif;
   overflow-x: hidden; /* Still good to keep for general robustness */
 }
 
