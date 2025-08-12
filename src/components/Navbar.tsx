@@ -9,11 +9,6 @@ const Navbar = () => {
         </Link>
         <ul className="flex space-x-8">
           <li>
-            <Link href="/vision" className="text-white/80 hover:text-white transition-all duration-300 font-medium text-sm uppercase tracking-wider hover:scale-105" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
-              Vision
-            </Link>
-          </li>
-          <li>
             <Link href="/meet-the-team" className="text-white/80 hover:text-white transition-all duration-300 font-medium text-sm uppercase tracking-wider hover:scale-105" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
               Meet the team
             </Link>
