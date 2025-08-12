@@ -5,7 +5,7 @@ const members = [
     id: 1,
     name: "Steven Tan Yi Khai",
     role: "President",
-    image: "/team/member1.jpg" // You'll add member1.jpg to public/team/
+    image: "/team/member1.JPG" // You'll add member1.jpg to public/team/
   },
   {
     id: 2,
