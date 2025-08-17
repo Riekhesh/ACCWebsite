@@ -62,7 +62,7 @@ const AffiliatesPage = () => {
             Our Affiliates
           </h1>
           <p className="mt-4 text-white/80 text-lg max-w-2xl" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
-            Partnering with leading consulting firms and organizations to deliver exceptional value.
+            Partnering with other student lead Malaysian organizations to deliver exceptional value.
           </p>
         </div>
       </section>
