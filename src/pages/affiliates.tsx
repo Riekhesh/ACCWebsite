@@ -134,7 +134,7 @@ const AffiliatesPage = () => {
             Interested in Partnering?
           </h2>
           <p className="text-[var(--primary)]/70 text-lg mb-8" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
-            We're always looking to expand our network of strategic partners and affiliates.
+            We&apos;re always looking to expand our network of strategic partners and affiliates.
           </p>
           <button className="bg-[var(--primary)] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[var(--primary)]/90 transition-colors shadow-lg hover:shadow-xl">
             Get in Touch

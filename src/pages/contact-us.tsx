@@ -9,7 +9,7 @@ const ContactUsPage = () => {
             Contact Us
           </h1>
           <p className="mt-4 text-white/80 text-lg max-w-2xl" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
-            Get in touch with us. We'd love to hear from you and answer any questions you may have.
+            Get in touch with us. We&apos;d love to hear from you and answer any questions you may have.
           </p>
         </div>
       </section>
