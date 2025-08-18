@@ -19,6 +19,11 @@ const Navbar = () => {
             </Link>
           </li>
           <li>
+            <Link href="/game" className="text-white/80 hover:text-white transition-all duration-300 font-medium text-sm uppercase tracking-wider hover:scale-105" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
+              Game
+            </Link>
+          </li>
+          <li>
             <Link href="/contact-us" className="text-white/80 hover:text-white transition-all duration-300 font-medium text-sm uppercase tracking-wider hover:scale-105" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
               Contact us
             </Link>
