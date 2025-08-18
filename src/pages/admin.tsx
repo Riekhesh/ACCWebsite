@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface Player {
   id: number;
@@ -18,6 +19,7 @@ const AdminPage = () => {
   const [newScore, setNewScore] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const useSupabase = isSupabaseConfigured();
 
   // Check authentication on component mount
   useEffect(() => {
@@ -39,11 +41,32 @@ const AdminPage = () => {
 
   const fetchPlayers = async () => {
     try {
-      // Load from localStorage if available; else use defaults
+      if (useSupabase) {
+        const { data, error } = await supabase
+          .from('players')
+          .select('*')
+          .order('score', { ascending: false });
+        if (error) throw error;
+        if (data && data.length) {
+          const mapped = data.map((p: any, idx: number) => ({
+            id: p.id,
+            name: p.name,
+            score: p.score,
+            avatar: p.avatar || '👤',
+            badge: p.badge || 'Player',
+            rank: idx + 1,
+          }));
+          setPlayers(mapped);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('leaderboardPlayers', JSON.stringify(mapped));
+          }
+          return;
+        }
+      }
+      // Fallback to localStorage/default
       const saved = typeof window !== 'undefined' ? localStorage.getItem('leaderboardPlayers') : null;
       if (saved) {
         const parsed: Player[] = JSON.parse(saved);
-        // Ensure ranks are consistent after load
         const sorted = [...parsed].sort((a, b) => b.score - a.score).map((p, idx) => ({ ...p, rank: idx + 1 }));
         setPlayers(sorted);
       } else {
@@ -66,6 +89,18 @@ const AdminPage = () => {
       console.error('Error fetching players:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const persistPlayers = async (next: Player[]) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('leaderboardPlayers', JSON.stringify(next));
+    }
+    if (useSupabase) {
+      // Upsert rows
+      const rows = next.map(p => ({ id: p.id, name: p.name, score: p.score, avatar: p.avatar, badge: p.badge }));
+      const { error } = await supabase.from('players').upsert(rows, { onConflict: 'id' });
+      if (error) console.error('Supabase upsert error:', error.message);
     }
   };
 
@@ -94,54 +129,37 @@ const AdminPage = () => {
     }
 
     try {
-      // Update the player score
       const updatedPlayers = players.map(player =>
         player.id === editingPlayer.id
           ? { ...player, score }
           : player
       );
 
-      // Re-sort players by score
       const sortedPlayers = updatedPlayers.sort((a, b) => b.score - a.score);
-      
-      // Update ranks
-      const finalPlayers = sortedPlayers.map((player, index) => ({
-        ...player,
-        rank: index + 1
-      }));
+      const finalPlayers = sortedPlayers.map((player, index) => ({ ...player, rank: index + 1 }));
 
       setPlayers(finalPlayers);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('leaderboardPlayers', JSON.stringify(finalPlayers));
-      }
+      await persistPlayers(finalPlayers);
       setEditingPlayer(null);
       setNewScore('');
-
-      // TODO: Replace with Supabase persistence
     } catch (error) {
       console.error('Error updating score:', error);
       alert('Failed to update score');
     }
   };
 
-  const addPoints = (playerId: number, points: number) => {
+  const addPoints = async (playerId: number, points: number) => {
     const updatedPlayers = players.map(player =>
       player.id === playerId
         ? { ...player, score: player.score + points }
         : player
     );
 
-    // Re-sort and update ranks
     const sortedPlayers = updatedPlayers.sort((a, b) => b.score - a.score);
-    const finalPlayers = sortedPlayers.map((player, index) => ({
-      ...player,
-      rank: index + 1
-    }));
+    const finalPlayers = sortedPlayers.map((player, index) => ({ ...player, rank: index + 1 }));
 
     setPlayers(finalPlayers);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('leaderboardPlayers', JSON.stringify(finalPlayers));
-    }
+    await persistPlayers(finalPlayers);
   };
 
   if (!mounted || !isAuthenticated) {
@@ -159,15 +177,10 @@ const AdminPage = () => {
                 Admin Dashboard
               </h1>
               <p className="mt-4 text-white/80 text-lg max-w-2xl" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
-                Manage player scores and leaderboard
+                Manage player scores and leaderboard {useSupabase ? '(Supabase)' : '(Local)'}
               </p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="px-6 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-            >
-              Logout
-            </button>
+            <button onClick={handleLogout} className="px-6 py-3 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">Logout</button>
           </div>
         </div>
       </section>

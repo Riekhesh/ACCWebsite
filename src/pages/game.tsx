@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import AdminLoginModal from '../components/AdminLoginModal';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface Player {
   id: number;
@@ -27,6 +28,7 @@ const GamePage = () => {
   const [mounted, setMounted] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [players, setPlayers] = useState<Player[]>(defaultPlayers);
+  const useSupabase = isSupabaseConfigured();
 
   const handleAdminLogin = () => {
     sessionStorage.setItem('adminLoggedIn', 'true');
@@ -36,22 +38,62 @@ const GamePage = () => {
 
   useEffect(() => {
     setMounted(true);
-    // Load players from localStorage when the component mounts
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('leaderboardPlayers');
-      if (saved) {
-        try {
+    const load = async () => {
+      if (useSupabase) {
+        const { data, error } = await supabase
+          .from('players')
+          .select('*')
+          .order('score', { ascending: false });
+        if (!error && data) {
+          const mapped = data.map((p: any, idx: number) => ({
+            id: p.id, name: p.name, score: p.score, avatar: p.avatar || '👤', badge: p.badge || 'Player', rank: idx + 1
+          }));
+          setPlayers(mapped);
+        } else {
+          // fallback
+          const saved = localStorage.getItem('leaderboardPlayers');
+          if (saved) {
+            const parsed: Player[] = JSON.parse(saved);
+            const sorted = [...parsed].sort((a, b) => b.score - a.score).map((p, idx) => ({ ...p, rank: idx + 1 }));
+            setPlayers(sorted);
+          } else {
+            setPlayers(defaultPlayers);
+          }
+        }
+      } else {
+        const saved = localStorage.getItem('leaderboardPlayers');
+        if (saved) {
           const parsed: Player[] = JSON.parse(saved);
           const sorted = [...parsed].sort((a, b) => b.score - a.score).map((p, idx) => ({ ...p, rank: idx + 1 }));
           setPlayers(sorted);
-        } catch {
+        } else {
           setPlayers(defaultPlayers);
         }
-      } else {
-        setPlayers(defaultPlayers);
       }
-    }
-  }, []);
+    };
+    load();
+  }, [useSupabase]);
+
+  useEffect(() => {
+    if (!useSupabase) return;
+    // Realtime updates for players table
+    const channel = supabase
+      .channel('players-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, async () => {
+        const { data } = await supabase.from('players').select('*').order('score', { ascending: false });
+        if (data) {
+          const mapped = data.map((p: any, idx: number) => ({
+            id: p.id, name: p.name, score: p.score, avatar: p.avatar || '👤', badge: p.badge || 'Player', rank: idx + 1
+          }));
+          setPlayers(mapped);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [useSupabase]);
 
   if (!mounted) {
     return (
@@ -80,7 +122,7 @@ const GamePage = () => {
         <div className="bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60 rounded-2xl p-8 shadow-xl border border-[var(--primary)]/10">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold text-[var(--primary)]" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
-              Top Players
+              Top Players {useSupabase ? '' : '(Local)'}
             </h2>
             <button
               onClick={() => setShowAdminModal(true)}
