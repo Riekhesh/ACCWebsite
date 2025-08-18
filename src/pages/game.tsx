@@ -12,6 +12,14 @@ interface Player {
   badge: string;
 }
 
+interface SupabasePlayerRow {
+  id: number;
+  name: string;
+  score: number;
+  avatar?: string | null;
+  badge?: string | null;
+}
+
 const defaultPlayers: Player[] = [
   { id: 1, name: "Riekhesh", score: 2840, rank: 1, avatar: "👑", badge: "Champion" },
   { id: 2, name: "Steven", score: 2720, rank: 2, avatar: "🥈", badge: "Runner-up" },
@@ -45,12 +53,12 @@ const GamePage = () => {
           .select('*')
           .order('score', { ascending: false });
         if (!error && data) {
-          const mapped = data.map((p: any, idx: number) => ({
-            id: p.id, name: p.name, score: p.score, avatar: p.avatar || '👤', badge: p.badge || 'Player', rank: idx + 1
+          const rows = data as SupabasePlayerRow[];
+          const mapped: Player[] = rows.map((p, idx) => ({
+            id: p.id, name: p.name, score: p.score, avatar: p.avatar ?? '👤', badge: p.badge ?? 'Player', rank: idx + 1
           }));
           setPlayers(mapped);
         } else {
-          // fallback
           const saved = localStorage.getItem('leaderboardPlayers');
           if (saved) {
             const parsed: Player[] = JSON.parse(saved);
@@ -76,14 +84,14 @@ const GamePage = () => {
 
   useEffect(() => {
     if (!useSupabase) return;
-    // Realtime updates for players table
     const channel = supabase
       .channel('players-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, async () => {
         const { data } = await supabase.from('players').select('*').order('score', { ascending: false });
         if (data) {
-          const mapped = data.map((p: any, idx: number) => ({
-            id: p.id, name: p.name, score: p.score, avatar: p.avatar || '👤', badge: p.badge || 'Player', rank: idx + 1
+          const rows = data as unknown as SupabasePlayerRow[];
+          const mapped: Player[] = rows.map((p, idx) => ({
+            id: p.id, name: p.name, score: p.score, avatar: p.avatar ?? '👤', badge: p.badge ?? 'Player', rank: idx + 1
           }));
           setPlayers(mapped);
         }

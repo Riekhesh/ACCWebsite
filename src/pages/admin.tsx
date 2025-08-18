@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -11,6 +11,14 @@ interface Player {
   badge: string;
 }
 
+interface SupabasePlayerRow {
+  id: number;
+  name: string;
+  score: number;
+  avatar?: string | null;
+  badge?: string | null;
+}
+
 const AdminPage = () => {
   const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
@@ -21,25 +29,7 @@ const AdminPage = () => {
   const [mounted, setMounted] = useState(false);
   const useSupabase = isSupabaseConfigured();
 
-  // Check authentication on component mount
-  useEffect(() => {
-    setMounted(true);
-    const checkAuth = () => {
-      const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-      if (!adminLoggedIn) {
-        router.push('/game');
-        return;
-      }
-      setIsAuthenticated(true);
-      fetchPlayers();
-    };
-
-    if (mounted) {
-      checkAuth();
-    }
-  }, [router, mounted]);
-
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     try {
       if (useSupabase) {
         const { data, error } = await supabase
@@ -48,12 +38,13 @@ const AdminPage = () => {
           .order('score', { ascending: false });
         if (error) throw error;
         if (data && data.length) {
-          const mapped = data.map((p: any, idx: number) => ({
+          const rows = data as SupabasePlayerRow[];
+          const mapped: Player[] = rows.map((p, idx) => ({
             id: p.id,
             name: p.name,
             score: p.score,
-            avatar: p.avatar || '👤',
-            badge: p.badge || 'Player',
+            avatar: p.avatar ?? '👤',
+            badge: p.badge ?? 'Player',
             rank: idx + 1,
           }));
           setPlayers(mapped);
@@ -90,14 +81,31 @@ const AdminPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [useSupabase]);
+
+  // Check authentication on component mount
+  useEffect(() => {
+    setMounted(true);
+    const checkAuth = () => {
+      const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+      if (!adminLoggedIn) {
+        router.push('/game');
+        return;
+      }
+      setIsAuthenticated(true);
+      fetchPlayers();
+    };
+
+    if (mounted) {
+      checkAuth();
+    }
+  }, [router, mounted, fetchPlayers]);
 
   const persistPlayers = async (next: Player[]) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('leaderboardPlayers', JSON.stringify(next));
     }
     if (useSupabase) {
-      // Upsert rows
       const rows = next.map(p => ({ id: p.id, name: p.name, score: p.score, avatar: p.avatar, badge: p.badge }));
       const { error } = await supabase.from('players').upsert(rows, { onConflict: 'id' });
       if (error) console.error('Supabase upsert error:', error.message);
