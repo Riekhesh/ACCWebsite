@@ -76,12 +76,12 @@ const MeetTheTeamPage = () => {
               style={{ boxShadow: '0 20px 40px 0 rgba(0, 0, 0, 0.06), 0 8px 32px 0 rgba(31, 38, 135, 0.12)' }}
             >
               {/* Team member image */}
-              <div className="relative w-full h-64 rounded-t-2xl overflow-hidden">
+              <div className="relative w-full h-56 sm:h-60 md:h-64 rounded-t-2xl overflow-hidden">
                 <Image
                   src={member.image}
                   alt={member.name}
                   fill
-                  className="object-cover"
+                  className="object-cover object-center"
                   onError={(e) => {
                     // Fallback to placeholder if image fails to load
                     const target = e.target as HTMLImageElement;

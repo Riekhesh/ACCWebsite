@@ -183,8 +183,8 @@ const GamePage = () => {
                 </div>
 
                 {/* Score */}
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-[var(--primary)]" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
+                <div className="text-right max-w-[40%] sm:max-w-none ml-2">
+                  <div className="text-2xl font-bold text-[var(--primary)] break-words leading-tight" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
                     {player.score.toLocaleString()}
                   </div>
                   <div className="text-[var(--primary)]/60 text-sm" style={{ fontFamily: 'Montserrat, Arial, sans-serif' }}>
