@@ -26,7 +26,7 @@ const affiliates = [
     id: 4,
     name: "Taylor’s business school",
     description: "General Description",
-    image: "/affiliates/A4.jpeg",
+    image: "/affiliates/A4.png",
     website: ""
   },
   {
